@@ -313,6 +313,71 @@ def _extract_transcript_text(page, panel_kind=None):
     return text or None
 
 
+def _get_transcript_ytdlp(video_url):
+    """Fetch transcript via yt-dlp --write-auto-subs. Returns cleaned text or None."""
+    import subprocess
+    import tempfile
+    import glob
+
+    vid = extract_video_id(video_url) or ""
+    if not vid:
+        return None
+
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = subprocess.run(
+                [
+                    "yt-dlp",
+                    "--write-auto-subs",
+                    "--skip-download",
+                    "--sub-format", "vtt",
+                    "--sub-langs", "en",
+                    "--no-warnings",
+                    "--quiet",
+                    "--output", f"{tmpdir}/%(id)s",
+                    f"https://www.youtube.com/watch?v={vid}",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            vtt_files = glob.glob(f"{tmpdir}/*.vtt")
+            if not vtt_files:
+                return None
+            raw = open(vtt_files[0], encoding="utf-8").read()
+            return _parse_vtt(raw)
+    except Exception as e:
+        log(f"  yt-dlp transcript error: {e}")
+        return None
+
+
+def _parse_vtt(vtt_text):
+    """Extract spoken text from a WebVTT subtitle file, deduplicated."""
+    lines = vtt_text.splitlines()
+    seen = set()
+    parts = []
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("WEBVTT") or line.startswith("Kind:") or line.startswith("Language:"):
+            continue
+        if re.match(r"^\d{2}:\d{2}:\d{2}\.\d{3}\s+-->\s+", line):
+            continue
+        if re.match(r"^\d+$", line):
+            continue
+        # strip VTT tags like <00:00:00.000><c>
+        line = re.sub(r"<[^>]+>", "", line).strip()
+        if not line or line in seen:
+            continue
+        seen.add(line)
+        parts.append(line)
+    text = " ".join(parts)
+    text = JUNK_RE.sub(" ", text)
+    text = WS_RE.sub(" ", text).strip()
+    return text or None
+
+
 def get_transcript(video_url):
     """Scrape transcript via headless Chromium. Always returns a dict, never raises."""
     vid = extract_video_id(video_url) or ""
@@ -402,6 +467,15 @@ def get_transcript(video_url):
                         return out
                 except Exception:
                     pass
+                # Playwright failed to load segments — try yt-dlp before giving up
+                log(f"  Playwright segments_not_loaded — trying yt-dlp fallback")
+                ytdlp_text = _get_transcript_ytdlp(canonical_url)
+                if ytdlp_text:
+                    out["transcript"] = ytdlp_text
+                    out["source"] = "auto"
+                    out["error"] = None
+                    log(f"  yt-dlp fallback ok: {len(ytdlp_text)} chars")
+                    return out
                 out["error"] = "segments_not_loaded"
                 return out
 
@@ -438,12 +512,53 @@ def get_transcript(video_url):
 
 
 def get_latest_video_id(channel_handle):
-    """Return the newest video ID on a channel. Pass e.g. '@TomNashTV'."""
+    """Return the newest video ID on a channel. Pass e.g. '@TomNashTV'.
+
+    Primary: yt-dlp (fast, no browser needed, reliable against YouTube bot detection).
+    Fallback: Playwright (kept as backup if yt-dlp unavailable).
+    """
     handle = channel_handle.strip()
     if not handle.startswith("@"):
         handle = "@" + handle
     url = f"https://www.youtube.com/{handle}/videos"
 
+    # Primary: yt-dlp
+    vid = _get_latest_video_id_ytdlp(url)
+    if vid:
+        return vid
+
+    log("  yt-dlp failed, falling back to Playwright for channel page")
+    return _get_latest_video_id_playwright(url)
+
+
+def _get_latest_video_id_ytdlp(url):
+    """Use yt-dlp to get latest video ID from a channel URL."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            [
+                "yt-dlp",
+                "--playlist-items", "1",
+                "--print", "id",
+                "--no-warnings",
+                "--quiet",
+                url,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        vid = result.stdout.strip().split("\n")[0].strip() if result.returncode == 0 else ""
+        if vid and re.fullmatch(r"[A-Za-z0-9_-]{11}", vid):
+            log(f"  yt-dlp: latest video = {vid}")
+            return vid
+    except Exception as e:
+        log(f"  yt-dlp channel lookup failed: {e}")
+    return None
+
+
+def _get_latest_video_id_playwright(url):
+    """Playwright fallback for channel page. Original implementation."""
     with sync_playwright() as pw:
         browser = None
         context = None
