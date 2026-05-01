@@ -314,37 +314,39 @@ def _extract_transcript_text(page, panel_kind=None):
 
 
 def _get_transcript_ytdlp(video_url):
-    """Fetch transcript via yt-dlp --write-auto-subs. Returns cleaned text or None."""
-    import subprocess
-    import tempfile
-    import glob
+    """Fetch transcript via yt-dlp Python API. Returns cleaned text or None."""
+    try:
+        import yt_dlp
+    except ImportError:
+        return None
 
     vid = extract_video_id(video_url) or ""
     if not vid:
         return None
 
+    import tempfile, glob, os
+
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = subprocess.run(
-                [
-                    "yt-dlp",
-                    "--write-auto-subs",
-                    "--skip-download",
-                    "--sub-format", "vtt",
-                    "--sub-langs", "en",
-                    "--no-warnings",
-                    "--quiet",
-                    "--output", f"{tmpdir}/%(id)s",
-                    f"https://www.youtube.com/watch?v={vid}",
-                ],
-                capture_output=True,
-                text=True,
-                timeout=60,
-            )
-            vtt_files = glob.glob(f"{tmpdir}/*.vtt")
+            ydl_opts = {
+                "writeautomaticsub": True,
+                "writesubtitles": True,
+                "subtitleslangs": ["en"],
+                "subtitlesformat": "vtt",
+                "skip_download": True,
+                "quiet": True,
+                "no_warnings": True,
+                "ignoreerrors": True,
+                "outtmpl": os.path.join(tmpdir, "%(id)s.%(ext)s"),
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([f"https://www.youtube.com/watch?v={vid}"])
+            vtt_files = glob.glob(os.path.join(tmpdir, "*.vtt"))
             if not vtt_files:
+                log("  yt-dlp: no VTT subtitle file found")
                 return None
-            raw = open(vtt_files[0], encoding="utf-8").read()
+            with open(vtt_files[0], encoding="utf-8") as f:
+                raw = f.read()
             return _parse_vtt(raw)
     except Exception as e:
         log(f"  yt-dlp transcript error: {e}")
@@ -532,29 +534,38 @@ def get_latest_video_id(channel_handle):
 
 
 def _get_latest_video_id_ytdlp(url):
-    """Use yt-dlp to get latest video ID from a channel URL."""
-    import subprocess
+    """Use yt-dlp Python API to get latest video ID from a channel URL."""
     try:
-        result = subprocess.run(
-            [
-                "yt-dlp",
-                "--playlist-items", "1",
-                "--print", "id",
-                "--no-warnings",
-                "--quiet",
-                url,
-            ],
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        vid = result.stdout.strip().split("\n")[0].strip() if result.returncode == 0 else ""
-        if vid and re.fullmatch(r"[A-Za-z0-9_-]{11}", vid):
+        import yt_dlp
+    except ImportError:
+        log("  yt-dlp not installed, skipping")
+        return None
+    try:
+        ydl_opts = {
+            "playlist_items": "1",
+            "quiet": True,
+            "no_warnings": True,
+            "extract_flat": True,
+            "ignoreerrors": True,
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+        if not info:
+            log("  yt-dlp: no info returned")
+            return None
+        entries = info.get("entries") or []
+        if not entries:
+            log("  yt-dlp: no entries in playlist")
+            return None
+        vid = (entries[0] or {}).get("id", "")
+        if vid and re.fullmatch(r"[A-Za-z0-9_-]{11}", str(vid)):
             log(f"  yt-dlp: latest video = {vid}")
-            return vid
+            return str(vid)
+        log(f"  yt-dlp: unexpected id format: {vid!r}")
+        return None
     except Exception as e:
         log(f"  yt-dlp channel lookup failed: {e}")
-    return None
+        return None
 
 
 def _get_latest_video_id_playwright(url):
