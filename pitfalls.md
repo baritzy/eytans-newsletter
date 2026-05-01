@@ -38,3 +38,8 @@ _Updated as bugs are found and fixed_
 - `print('עברית')` from Python on Windows raises `UnicodeEncodeError` in cp1252.
 - **Fix in seed script:** `sys.stdout.reconfigure(encoding="utf-8")` at the top.
 - **Note for future scripts:** all Python in this project that prints Hebrew must do this reconfigure on Windows. (GitHub Actions runs Linux, no issue there.)
+## segments_not_loaded was incorrectly treated as permanent (fixed 2026-05-01)
+- Original code: `segments_not_loaded` was grouped with `no_transcript` — wrote placeholder + marked processed → video was NEVER retried.
+- **Fix:** `segments_not_loaded` is transient. Now: no placeholder written, not added to processed.json, retried on next run.
+- Also: disk-exists check now reads `status: "ok"` from the file — old error placeholders no longer block reprocessing.
+- Also: `deadline_ms` in yt_scraper.py raised from 25s → 50s to give slow videos more time.

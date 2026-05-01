@@ -279,10 +279,13 @@ def process_channel(client, types, handle, processed):
     if vid in processed.get("video_ids", []):
         log(f"  {vid}: already processed, skipping")
         return None
-    if (POSTS_DIR / f"{vid}.md").exists():
-        log(f"  {vid}: post exists on disk, skipping")
-        processed.setdefault("video_ids", []).append(vid)
-        return None
+    existing = POSTS_DIR / f"{vid}.md"
+    if existing.exists():
+        if 'status: "ok"' in existing.read_text(encoding="utf-8"):
+            log(f"  {vid}: post exists on disk (ok), skipping")
+            processed.setdefault("video_ids", []).append(vid)
+            return None
+        log(f"  {vid}: post exists but has error status — reprocessing")
 
     log(f"  {vid}: fetching transcript...")
     try:
@@ -297,11 +300,14 @@ def process_channel(client, types, handle, processed):
     duration = scrape.get("duration_sec")
     source = scrape.get("source")
 
-    if err in ("no_transcript", "members_only", "empty_transcript", "segments_not_loaded"):
-        log(f"  {vid}: no transcript ({err}) — placeholder")
+    if err in ("no_transcript", "members_only"):
+        log(f"  {vid}: no transcript ({err}) — placeholder (permanent)")
         write_placeholder(vid, handle, title, err)
         processed.setdefault("video_ids", []).append(vid)
         return vid
+    if err in ("segments_not_loaded", "empty_transcript"):
+        log(f"  {vid}: transient scrape error ({err}) — will retry tomorrow")
+        return None
     if err or not transcript:
         log(f"  {vid}: scrape error: {err}")
         return None

@@ -370,7 +370,7 @@ def get_transcript(video_url):
             log("  waiting for segments...")
             segments_ok = False
             panel_kind = None
-            deadline_ms = 25000
+            deadline_ms = 50000
             step_ms = 800
             elapsed = 0
             while elapsed < deadline_ms:
