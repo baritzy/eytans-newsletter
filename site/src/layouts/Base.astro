@@ -1,4 +1,4 @@
----
+﻿---
 import "../styles/main.css";
 const { title = "המהדורה היומית של אייתן", monthlyCost = 0 } = Astro.props;
 const costDisplay = (monthlyCost ?? 0).toFixed(2);
@@ -18,11 +18,16 @@ const costDisplay = (monthlyCost ?? 0).toFixed(2);
     />
   </head>
   <body>
-    <main class="container">
-      <header class="site-header">
-        <h1 class="site-title">{title}</h1>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <div class="site-title-block">
+          <h1 class="site-title">{title}</h1>
+          <p class="site-tagline">סיכומי יוטיוב יומיים בעברית — אוטומטי לגמרי</p>
+        </div>
         <span class="cost-widget" title="עלות חודשית של ה-LLM">${costDisplay}/חודש</span>
-      </header>
+      </div>
+    </header>
+    <main class="container">
       <slot />
       <footer class="site-footer">
         סיכומים יומיים, מתעדכנים אוטומטית. © Eytan

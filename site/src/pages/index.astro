@@ -1,10 +1,10 @@
----
+﻿---
 import Base from "../layouts/Base.astro";
 import { getCollection } from "astro:content";
 import fs from "node:fs";
 import path from "node:path";
 
-// Load monthly cost from costs.json (project root level data/)
+// Load monthly cost from costs.json
 let monthlyCost = 0;
 try {
   const costsPath = path.resolve("../data/costs.json");
@@ -32,6 +32,25 @@ function fmtDuration(secs) {
   const m = Math.round(secs / 60);
   return `${m} דק׳`;
 }
+
+function getErrorMessage(errorCode) {
+  const map = {
+    segments_not_loaded: "הכתוביות של הוידאו לא נטענו בזמן. ננסה שוב מחר.",
+    no_transcript: "לוידאו זה אין כתוביות זמינות ביוטיוב.",
+    members_only: "הוידאו זמין למנויים בלבד.",
+  };
+  return map[errorCode] || "הוידאו לא סוכם בגלל שגיאה טכנית.";
+}
+
+function getExcerpt(body) {
+  const clean = body
+    .replace(/^#{1,6}\s+.+$/gm, "")
+    .replace(/^[\-\*]\s+/gm, "")
+    .replace(/\n+/g, " ")
+    .trim();
+  if (clean.length <= 150) return clean;
+  return clean.slice(0, 150).trimEnd() + "...";
+}
 ---
 <Base monthlyCost={monthlyCost}>
   <div class="filter-pills" id="filter-pills">
@@ -44,45 +63,95 @@ function fmtDuration(secs) {
     <div class="empty-state">עדיין אין פוסטים. הגיע אחרי הריצה היומית הראשונה.</div>
   ) : (
     <div id="posts-list">
-      {postsRaw.map((p) => (
-        <article class="post" data-cat={p.data.category}>
-          <h2 class="post-title">{p.data.hebrew_title}</h2>
-          <div class="post-meta">
-            <span class="channel">{p.data.channel}</span>
-            <span class="dot">·</span>
-            <span>{fmtDate(p.data.date)}</span>
-            {p.data.duration_sec ? (
+      {postsRaw.map((p) => {
+        const isError = p.data.status === "error";
+        const excerpt = isError ? "" : getExcerpt(p.body ?? "");
+        const errorMsg = isError ? getErrorMessage(p.data.error ?? "") : "";
+        return (
+          <article class="post" data-cat={p.data.category}>
+            <h2 class="post-title">{p.data.hebrew_title}</h2>
+            <div class="post-meta">
+              <span class="channel">{p.data.channel}</span>
+              <span class="dot">·</span>
+              <span>{fmtDate(p.data.date)}</span>
+              {p.data.duration_sec ? (
+                <>
+                  <span class="dot">·</span>
+                  <span>{fmtDuration(p.data.duration_sec)}</span>
+                </>
+              ) : null}
+              <span class="category-pill">{p.data.category}</span>
+            </div>
+
+            {isError ? (
+              <p class="error-message">{errorMsg}</p>
+            ) : (
               <>
-                <span class="dot">·</span>
-                <span>{fmtDuration(p.data.duration_sec)}</span>
+                <p class="post-excerpt">{excerpt}</p>
+                <div class="post-body">
+                  <div class="post-summary" set:html={p.rendered?.html ?? ""} />
+                </div>
+                <div class="post-actions">
+                  <button class="toggle-btn" aria-expanded="false">קרא עוד ▾</button>
+                  <a class="source-link" href={p.data.video_url} target="_blank" rel="noopener">צפה במקור ←</a>
+                </div>
               </>
-            ) : null}
-            <span class="category-pill">{p.data.category}</span>
-          </div>
-          <div class="post-summary" set:html={p.rendered?.html ?? ""} />
-          <a class="source-link" href={p.data.video_url} target="_blank" rel="noopener">צפה במקור ←</a>
-        </article>
-      ))}
+            )}
+          </article>
+        );
+      })}
     </div>
   )}
 
   <script is:inline>
     (function () {
+      // Category filter
       const pills = document.querySelectorAll("#filter-pills .pill");
       const posts = document.querySelectorAll("#posts-list .post");
-      pills.forEach((pill) => {
-        pill.addEventListener("click", () => {
-          const cat = pill.dataset.cat;
-          pills.forEach((p) => p.setAttribute("data-active", "false"));
+      pills.forEach(function(pill) {
+        pill.addEventListener("click", function() {
+          var cat = pill.dataset.cat;
+          pills.forEach(function(p) { p.setAttribute("data-active", "false"); });
           pill.setAttribute("data-active", "true");
-          posts.forEach((post) => {
-            if (cat === "all" || post.dataset.cat === cat) {
-              post.style.display = "";
-            } else {
-              post.style.display = "none";
-            }
+          posts.forEach(function(post) {
+            post.style.display = (cat === "all" || post.dataset.cat === cat) ? "" : "none";
           });
         });
+      });
+
+      // Expand / collapse cards
+      posts.forEach(function(post) {
+        var title = post.querySelector(".post-title");
+        var toggleBtn = post.querySelector(".toggle-btn");
+        var body = post.querySelector(".post-body");
+        var sourceLink = post.querySelector(".source-link");
+
+        if (!toggleBtn || !body) return;
+
+        function expand() {
+          body.classList.add("is-open");
+          toggleBtn.textContent = "סגור ▴";
+          toggleBtn.setAttribute("aria-expanded", "true");
+          if (sourceLink) sourceLink.classList.add("visible");
+        }
+
+        function collapse() {
+          body.classList.remove("is-open");
+          toggleBtn.textContent = "קרא עוד ▾";
+          toggleBtn.setAttribute("aria-expanded", "false");
+          if (sourceLink) sourceLink.classList.remove("visible");
+        }
+
+        function toggle() {
+          if (body.classList.contains("is-open")) {
+            collapse();
+          } else {
+            expand();
+          }
+        }
+
+        if (title) title.addEventListener("click", toggle);
+        toggleBtn.addEventListener("click", toggle);
       });
     })();
   </script>
