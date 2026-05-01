@@ -1,0 +1,48 @@
+
+-> ag589INxdDk (Tom Nash)
+-> Opening tab for ag589INxdDk
+  waiting for player...
+  title: 'History is About to Be Made... [Last Big Wealth Opportunity For A Decade]'  duration: 1113s
+  opening transcript panel...
+  clicked: expand description (tp-yt-paper-button#expand)
+  clicked: show transcript (button[aria-label="Show transcript"])
+  waiting for segments...
+  panel kind: classic
+  ok: 19016 chars, source=auto
+  scrape: 32.46s  source=auto  err=None  chars=19016
+  cost: $0.000697  in=5005 out=1071  api=7.26s
+  saved -> C:\Users\user\Documents\eytan-workspace\the-system-v8\P-projects\eytans-newsletter\context\poc-results-gemini\ag589INxdDk.json
+
+-> VyDeaRin-hw (Dr Know-it-all Knows it all)
+-> Opening tab for VyDeaRin-hw
+  waiting for player...
+  title: 'Tesla Just Made Its Riskiest Bet Yet'  duration: 738s
+  opening transcript panel...
+  clicked: expand description (tp-yt-paper-button#expand)
+  clicked: show transcript (button[aria-label="Show transcript"])
+  waiting for segments...
+  panel kind: classic
+  ok: 14161 chars, source=auto
+  scrape: 30.63s  source=auto  err=None  chars=14161
+  cost: $0.000543  in=3493 out=936  api=6.02s
+  saved -> C:\Users\user\Documents\eytan-workspace\the-system-v8\P-projects\eytans-newsletter\context\poc-results-gemini\VyDeaRin-hw.json
+
+-> Y0j-7a88BHk (Solving The Money Problem)
+-> Opening tab for Y0j-7a88BHk
+  waiting for player...
+  title: 'Elon’s Hilarious Day 2 Testimony (he ROASTS lawyers) In OpenAI Lawsuit'  duration: 699s
+  opening transcript panel...
+  clicked: expand description (tp-yt-paper-button#expand)
+  clicked: show transcript (button[aria-label="Show transcript"])
+  waiting for segments...
+  panel kind: modern
+  ok: 12463 chars, source=manual
+  scrape: 19.71s  source=manual  err=None  chars=12463
+  cost: $0.000509  in=3253 out=885  api=6.02s
+  saved -> C:\Users\user\Documents\eytan-workspace\the-system-v8\P-projects\eytans-newsletter\context\poc-results-gemini\Y0j-7a88BHk.json
+
+=== Summary ===
+  OK   ag589INxdDk  $0.000697  Tom Nash
+  OK   VyDeaRin-hw  $0.000543  Dr Know-it-all Knows it all
+  OK   Y0j-7a88BHk  $0.000509  Solving The Money Problem
+Done. 3/3 videos. Total: $0.001749

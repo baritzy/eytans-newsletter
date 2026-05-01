@@ -1,0 +1,89 @@
+---
+import Base from "../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import fs from "node:fs";
+import path from "node:path";
+
+// Load monthly cost from costs.json (project root level data/)
+let monthlyCost = 0;
+try {
+  const costsPath = path.resolve("../data/costs.json");
+  if (fs.existsSync(costsPath)) {
+    const data = JSON.parse(fs.readFileSync(costsPath, "utf-8"));
+    const monthKey = new Date().toISOString().slice(0, 7);
+    monthlyCost = (data.monthly && data.monthly[monthKey]) || 0;
+  }
+} catch (e) {
+  console.warn("could not read costs.json:", e);
+}
+
+const postsRaw = await getCollection("posts");
+postsRaw.sort((a, b) => +new Date(b.data.date) - +new Date(a.data.date));
+
+const categories = ["כל הקטגוריות", "Tesla", "Palantir", "AI", "Markets", "Innovation", "General"];
+
+function fmtDate(d) {
+  const dt = new Date(d);
+  return dt.toLocaleDateString("he-IL", { day: "numeric", month: "long" });
+}
+
+function fmtDuration(secs) {
+  if (!secs) return "";
+  const m = Math.round(secs / 60);
+  return `${m} דק׳`;
+}
+---
+<Base monthlyCost={monthlyCost}>
+  <div class="filter-pills" id="filter-pills">
+    {categories.map((c, i) => (
+      <button class="pill" data-active={i === 0 ? "true" : "false"} data-cat={c === "כל הקטגוריות" ? "all" : c}>{c}</button>
+    ))}
+  </div>
+
+  {postsRaw.length === 0 ? (
+    <div class="empty-state">עדיין אין פוסטים. הגיע אחרי הריצה היומית הראשונה.</div>
+  ) : (
+    <div id="posts-list">
+      {postsRaw.map((p) => (
+        <article class="post" data-cat={p.data.category}>
+          <h2 class="post-title">{p.data.hebrew_title}</h2>
+          <div class="post-meta">
+            <span class="channel">{p.data.channel}</span>
+            <span class="dot">·</span>
+            <span>{fmtDate(p.data.date)}</span>
+            {p.data.duration_sec ? (
+              <>
+                <span class="dot">·</span>
+                <span>{fmtDuration(p.data.duration_sec)}</span>
+              </>
+            ) : null}
+            <span class="category-pill">{p.data.category}</span>
+          </div>
+          <div class="post-summary" set:html={p.rendered?.html ?? ""} />
+          <a class="source-link" href={p.data.video_url} target="_blank" rel="noopener">צפה במקור ←</a>
+        </article>
+      ))}
+    </div>
+  )}
+
+  <script is:inline>
+    (function () {
+      const pills = document.querySelectorAll("#filter-pills .pill");
+      const posts = document.querySelectorAll("#posts-list .post");
+      pills.forEach((pill) => {
+        pill.addEventListener("click", () => {
+          const cat = pill.dataset.cat;
+          pills.forEach((p) => p.setAttribute("data-active", "false"));
+          pill.setAttribute("data-active", "true");
+          posts.forEach((post) => {
+            if (cat === "all" || post.dataset.cat === cat) {
+              post.style.display = "";
+            } else {
+              post.style.display = "none";
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</Base>

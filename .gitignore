@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+node_modules/
+site/dist/
+site/.astro/
+site/.vite/
+context/poc-results/
+context/poc-results-gemini/
+context/manual-transcripts/
+context/tmp_subs/
+context/_get_gemini_key*
+context/out*.json
+context/err*.log

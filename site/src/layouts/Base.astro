@@ -1,0 +1,32 @@
+---
+import "../styles/main.css";
+const { title = "המהדורה היומית של אייתן", monthlyCost = 0 } = Astro.props;
+const costDisplay = (monthlyCost ?? 0).toFixed(2);
+---
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="container">
+      <header class="site-header">
+        <h1 class="site-title">{title}</h1>
+        <span class="cost-widget" title="עלות חודשית של ה-LLM">${costDisplay}/חודש</span>
+      </header>
+      <slot />
+      <footer class="site-footer">
+        סיכומים יומיים, מתעדכנים אוטומטית. © Eytan
+      </footer>
+    </main>
+  </body>
+</html>
