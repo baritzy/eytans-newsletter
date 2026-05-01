@@ -1,7 +1,14 @@
-﻿---
+---
 import "../styles/main.css";
-const { title = "המהדורה היומית של אייתן", monthlyCost = 0 } = Astro.props;
+const { title = "הדיג'סט של איתן", monthlyCost = 0 } = Astro.props;
 const costDisplay = (monthlyCost ?? 0).toFixed(2);
+
+const now = new Date();
+const hebrewDate = now.toLocaleDateString("he-IL", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+});
 ---
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
@@ -13,19 +20,20 @@ const costDisplay = (monthlyCost ?? 0).toFixed(2);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700&family=Heebo:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
     <header class="site-header">
       <div class="site-header-inner">
-        <div class="site-title-block">
-          <h1 class="site-title">{title}</h1>
-          <p class="site-tagline">סיכומי יוטיוב יומיים בעברית — אוטומטי לגמרי</p>
+        <h1 class="site-title">{title}</h1>
+        <div class="site-header-end">
+          <span class="site-date" dir="ltr">{hebrewDate}</span>
+          <span class="cost-widget" title="עלות חודשית של ה-LLM">${costDisplay}/חודש</span>
         </div>
-        <span class="cost-widget" title="עלות חודשית של ה-LLM">${costDisplay}/חודש</span>
       </div>
+      <div class="site-header-rule"></div>
     </header>
     <main class="container">
       <slot />

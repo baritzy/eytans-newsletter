@@ -27,19 +27,23 @@ function fmtDate(d) {
   return dt.toLocaleDateString("he-IL", { day: "numeric", month: "long" });
 }
 
+function fmtDateISO(d) {
+  return new Date(d).toISOString().slice(0, 10);
+}
+
 function fmtDuration(secs) {
   if (!secs) return "";
   const m = Math.round(secs / 60);
-  return `${m} דק׳`;
+  return m + " דק׳";
 }
 
 function getErrorMessage(errorCode) {
   const map = {
-    segments_not_loaded: "הכתוביות של הוידאו לא נטענו בזמן. ננסה שוב מחר.",
-    no_transcript: "לוידאו זה אין כתוביות זמינות ביוטיוב.",
-    members_only: "הוידאו זמין למנויים בלבד.",
+    segments_not_loaded: "הכתוביות לא נטענו בזמן, ננסה מחר",
+    no_transcript: "לוידאו הזה אין כתוביות ביוטיוב",
+    members_only: "הוידאו למנויים בלבד",
   };
-  return map[errorCode] || "הוידאו לא סוכם בגלל שגיאה טכנית.";
+  return map[errorCode] || "שגיאה טכנית, ננסה מחר";
 }
 
 function getExcerpt(body) {
@@ -66,21 +70,21 @@ function getExcerpt(body) {
       {postsRaw.map((p) => {
         const isError = p.data.status === "error";
         const excerpt = isError ? "" : getExcerpt(p.body ?? "");
-        const errorMsg = isError ? getErrorMessage(p.data.error ?? "") : "";
+        const errorMsg = isError ? getErrorMessage((p.data as any).error ?? "") : "";
         return (
           <article class="post" data-cat={p.data.category}>
+            <div class="post-eyebrow">{p.data.category}</div>
             <h2 class="post-title">{p.data.hebrew_title}</h2>
             <div class="post-meta">
               <span class="channel">{p.data.channel}</span>
               <span class="dot">·</span>
-              <span>{fmtDate(p.data.date)}</span>
+              <time datetime={fmtDateISO(p.data.date)}>{fmtDate(p.data.date)}</time>
               {p.data.duration_sec ? (
                 <>
                   <span class="dot">·</span>
                   <span>{fmtDuration(p.data.duration_sec)}</span>
                 </>
               ) : null}
-              <span class="category-pill">{p.data.category}</span>
             </div>
 
             {isError ? (
