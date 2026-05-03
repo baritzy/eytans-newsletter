@@ -263,7 +263,7 @@ def _extract_transcript_modern(page):
     seconds' marker as separate child divs. Use JavaScript to extract just
     the spoken text from each segment, ignoring the time/sr-hint nodes.
     """
-    js = """() => {
+    js = r"""() => {
       const segs = document.querySelectorAll("transcript-segment-view-model");
       if (!segs.length) return null;
       const parts = [];

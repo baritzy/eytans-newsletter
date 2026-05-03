@@ -160,13 +160,49 @@ a:hover { text-decoration: underline; }
 /* Post cards */
 .post {
   border-bottom: 1px solid var(--border);
-  padding: 0 0 40px;
+  border-right: 4px solid #ef4444;
+  padding: 0 14px 40px 0;
   margin-bottom: 40px;
+  transition: border-right-color 0.2s ease;
 }
 
 .post:last-child {
   border-bottom: none;
   margin-bottom: 0;
+}
+
+.post.is-read {
+  border-right-color: #22c55e;
+}
+
+/* Read button */
+.read-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  background: none;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-family: Heebo, sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-meta);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.read-btn:hover {
+  border-color: #22c55e;
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.post.is-read .read-btn {
+  border-color: #22c55e;
+  color: #16a34a;
+  background: #f0fdf4;
 }
 
 .post-eyebrow {

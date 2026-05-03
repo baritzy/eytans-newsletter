@@ -72,7 +72,7 @@ function getExcerpt(body) {
         const excerpt = isError ? "" : getExcerpt(p.body ?? "");
         const errorMsg = isError ? getErrorMessage((p.data as any).error ?? "") : "";
         return (
-          <article class="post" data-cat={p.data.category}>
+          <article class="post" data-cat={p.data.category} data-vid={p.data.video_id}>
             <div class="post-eyebrow">{p.data.category}</div>
             <h2 class="post-title">{p.data.hebrew_title}</h2>
             <div class="post-meta">
@@ -101,6 +101,7 @@ function getExcerpt(body) {
                 </div>
               </>
             )}
+            <button class="read-btn">✓ נקרא</button>
           </article>
         );
       })}
@@ -156,6 +157,43 @@ function getExcerpt(body) {
 
         if (title) title.addEventListener("click", toggle);
         toggleBtn.addEventListener("click", toggle);
+      });
+
+      // Read / unread tracking via localStorage
+      var READ_KEY = "newsletter-read";
+      function getReadSet() {
+        try { return new Set(JSON.parse(localStorage.getItem(READ_KEY) || "[]")); }
+        catch (e) { return new Set(); }
+      }
+      function saveReadSet(s) {
+        localStorage.setItem(READ_KEY, JSON.stringify(Array.from(s)));
+      }
+
+      var readSet = getReadSet();
+
+      posts.forEach(function(post) {
+        var vid = post.dataset.vid;
+        var btn = post.querySelector(".read-btn");
+        if (!vid || !btn) return;
+
+        if (readSet.has(vid)) {
+          post.classList.add("is-read");
+          btn.textContent = "↩ בטל סימון";
+        }
+
+        btn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          if (readSet.has(vid)) {
+            readSet.delete(vid);
+            post.classList.remove("is-read");
+            btn.textContent = "✓ נקרא";
+          } else {
+            readSet.add(vid);
+            post.classList.add("is-read");
+            btn.textContent = "↩ בטל סימון";
+          }
+          saveReadSet(readSet);
+        });
       });
     })();
   </script>
