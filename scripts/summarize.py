@@ -300,13 +300,13 @@ def process_channel(client, types, handle, processed):
     duration = scrape.get("duration_sec")
     source = scrape.get("source")
 
-    if err in ("no_transcript", "members_only"):
-        log(f"  {vid}: no transcript ({err}) — placeholder (permanent)")
+    if err == "members_only":
+        log(f"  {vid}: members_only — placeholder (permanent)")
         write_placeholder(vid, handle, title, err)
         processed.setdefault("video_ids", []).append(vid)
         return vid
-    if err in ("segments_not_loaded", "empty_transcript"):
-        log(f"  {vid}: transient scrape error ({err}) — will retry tomorrow")
+    if err in ("no_transcript", "segments_not_loaded", "empty_transcript"):
+        log(f"  {vid}: transient ({err}) — will retry tomorrow")
         return None
     if err or not transcript:
         log(f"  {vid}: scrape error: {err}")
