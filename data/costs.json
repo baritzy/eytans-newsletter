@@ -811,12 +811,19 @@
       "input_tokens": 4933,
       "output_tokens": 945,
       "cost_usd": 0.000653
+    },
+    {
+      "date": "2026-06-15",
+      "video_id": "a8ci21cxJA8",
+      "input_tokens": 3827,
+      "output_tokens": 867,
+      "cost_usd": 0.000547
     }
   ],
   "monthly": {
     "2026-04": 0.001749,
     "2026-05": 0.055289,
-    "2026-06": 0.016127
+    "2026-06": 0.016674
   },
   "_seed_note": "seeded from PoC; will be overwritten by first real run"
 }
