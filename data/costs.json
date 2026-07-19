@@ -1455,13 +1455,20 @@
       "input_tokens": 4077,
       "output_tokens": 825,
       "cost_usd": 0.000553
+    },
+    {
+      "date": "2026-07-19",
+      "video_id": "8-nK63GLhcc",
+      "input_tokens": 2901,
+      "output_tokens": 884,
+      "cost_usd": 0.000483
     }
   ],
   "monthly": {
     "2026-04": 0.001749,
     "2026-05": 0.055289,
     "2026-06": 0.040649,
-    "2026-07": 0.031504
+    "2026-07": 0.031987
   },
   "_seed_note": "seeded from PoC; will be overwritten by first real run"
 }
