@@ -12,3 +12,7 @@ context/tmp_subs/
 context/_get_gemini_key*
 context/out*.json
 context/err*.log
+
+# Internal ABC-TOM system files. This repo is PUBLIC, these must never be committed.
+lessons.md
+PRODUCT.md
