@@ -2029,6 +2029,13 @@
       "input_tokens": 11473,
       "output_tokens": 834,
       "cost_usd": 0.001111
+    },
+    {
+      "date": "2026-08-17",
+      "video_id": "hBQi5h7zRuI",
+      "input_tokens": 7536,
+      "output_tokens": 1220,
+      "cost_usd": 0.000931
     }
   ],
   "monthly": {
@@ -2036,7 +2043,7 @@
     "2026-05": 0.055289,
     "2026-06": 0.040649,
     "2026-07": 0.056518,
-    "2026-08": 0.030104
+    "2026-08": 0.031035
   },
   "_seed_note": "seeded from PoC; will be overwritten by first real run"
 }
