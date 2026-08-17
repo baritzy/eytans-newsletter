@@ -14,17 +14,38 @@
 - [x] GitHub Action `.github/workflows/daily-newsletter.yml` — 06:00 UTC cron, concurrency guard, retries on push
 - [x] `DEPLOY.md` — 4-step deploy guide
 
-## Wave 3 — QA + Deploy (pending — Eytan-account-level work)
-- [ ] Eytan creates GitHub repo `eytans-newsletter`
-- [ ] Push project (`git init && git push`)
-- [ ] Add `GEMINI_API_KEY` to repo secrets
-- [ ] Enable GitHub Pages (Source: GitHub Actions)
-- [ ] Manual workflow_dispatch trigger
-- [ ] Devil's Advocate review of live deploy
-- [ ] 5-layer QA (auto coverage, data integrity, code audit, browser test + click every link, edge fuzz)
-- [ ] Verify mobile + desktop on the live URL
+## Wave 3 — QA + Deploy ✅ DONE (אומת 17.8.2026)
+- [x] Eytan creates GitHub repo `eytans-newsletter` (ציבורי)
+- [x] Push project (`git init && git push`)
+- [x] Add `GEMINI_API_KEY` to repo secrets (אומת: קיים, נוצר 1.5.26)
+- [x] Enable GitHub Pages (Source: GitHub Actions) - שלב ה-deploy מצליח בכל הרצה יומית
+- [x] Manual workflow_dispatch trigger
+- [ ] Devil's Advocate review of live deploy - **לא אומת, לא ידוע אם בוצע**
+- [ ] 5-layer QA - **לא אומת, לא ידוע אם בוצע**
+- [ ] Verify mobile + desktop on the live URL - **לא אומת**
 
 ## Wave 4 — Iterate (pending — after 1 week of operation)
-- [ ] Measure: actual cost, transcript hit rate, categorization accuracy
-- [ ] Re-evaluate LLM choice (target check: 2026-05-30)
+- [x] Measure: actual cost - **כ-₪1 לחודש**, אומת מול חיוב `Google Cloud` (17.8.26)
+- [ ] Measure: transcript hit rate, categorization accuracy
+- [ ] Re-evaluate LLM choice (target check: 2026-05-30 - עבר, לא בוצע)
 - [ ] Iterate on design / categories / pipeline
+
+## Wave 5 — Billing + Security ✅ DONE (14-17.8.2026)
+- [x] מעבר מ-`Postpay` ל-`Prepay` ב-Gemini API (דרישת גוגל, דדליין היה 12.10.26). נטענו ₪50
+- [x] אומת שהפייפליין ממשיך לרוץ אחרי המעבר: הרצות מוצלחות ב-15, 16, 17 באוגוסט
+- [x] התראת התקציב תוקנה ממצטבר לחודשי (₪37, ספי 50/90/100%)
+- [x] טוקן `GitHub` קלאסי הוסר מ-`.git/config` ומ-`.env`. ההזדהות עברה ל-`gh credential helper`
+- [x] `lessons.md` + `PRODUCT.md` נוספו ל-gitignore (המאגר ציבורי, הם ישבו בו חשופים)
+
+---
+
+## NEXT UP — איפה הפסקנו
+
+> **הקובץ הזה מקומט במאגר ציבורי.** פרטי הפעולות הפתוחות, כולל כל מה שנוגע להרשאות וחיוב, יושבים ב-`lessons.md` שהוא מקומי ומוחרג. לא להעתיק אותם לכאן.
+
+- [ ] פעולה אחת פתוחה שדורשת את איתן בחשבון GitHub. פרטים ב-`lessons.md`
+- [ ] שתי החלטות ממתינות (חשיפת קבצי מערכת, כיסוי QA gate). פרטים ב-`lessons.md`
+
+**חוב טכני ידוע:**
+- [ ] `data/costs.json` המקומי תקוע על נתוני seed מיוני. הגרסה האמיתית מתעדכנת בריפו בכל הרצה
+- [ ] FARZAD-FM ו-ARKInvest2015 עדיין חסומים (ראה `lessons.md`)
