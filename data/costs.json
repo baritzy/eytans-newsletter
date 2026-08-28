@@ -2253,6 +2253,34 @@
       "input_tokens": 4674,
       "output_tokens": 721,
       "cost_usd": 0.000567
+    },
+    {
+      "date": "2026-08-28",
+      "video_id": "me4427tpWIQ",
+      "input_tokens": 2925,
+      "output_tokens": 710,
+      "cost_usd": 0.000432
+    },
+    {
+      "date": "2026-08-28",
+      "video_id": "4VDAzWeC44k",
+      "input_tokens": 5007,
+      "output_tokens": 1096,
+      "cost_usd": 0.000704
+    },
+    {
+      "date": "2026-08-28",
+      "video_id": "zW6xzbk1D4c",
+      "input_tokens": 3331,
+      "output_tokens": 855,
+      "cost_usd": 0.000506
+    },
+    {
+      "date": "2026-08-28",
+      "video_id": "rH1Y1oISgtM",
+      "input_tokens": 5699,
+      "output_tokens": 880,
+      "cost_usd": 0.000691
     }
   ],
   "monthly": {
@@ -2260,7 +2288,7 @@
     "2026-05": 0.055289,
     "2026-06": 0.040649,
     "2026-07": 0.056518,
-    "2026-08": 0.050815
+    "2026-08": 0.053148
   },
   "_seed_note": "seeded from PoC; will be overwritten by first real run"
 }
